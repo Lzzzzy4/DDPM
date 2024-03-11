@@ -4,7 +4,7 @@ import torch
 # Scaled Dot-product Attention
 # Attention(Q,K,V) = softmax(QK^T/sqrt(d_k))V
 # Q = XW_q K = XW_k V = XW_v 三个权重矩阵可训练
-class Attention(nn.Module):
+class AttentionBlock(nn.Module):
     def __init__(self, channels : int = 128):
         super().__init__()
         self.linear1 = nn.Linear(channels, channels)
