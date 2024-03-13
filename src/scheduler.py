@@ -28,13 +28,19 @@ class Scheduler:
 
     def add_noise(self, image: torch.Tensor, noise: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
         # x_t = √(α_t)x_0 + √(1-α_t) ε
-        sqrt = torch.sqrt(self.alphas_cumprod[timesteps]).flatten() # 扁平化
-        # while len(sqrt_alpha_prod.shape) < len(image.shape):
-        #     sqrt_alpha_prod = sqrt_alpha_prod.unsqueeze(-1)
-        sqrt1 = torch.sqrt(1 - self.alphas_cumprod[timesteps]).flatten()
-        # sqrt.cuda()
-        # sqrt1.cuda()
-        return sqrt * image + sqrt1 * noise
+        sqrt_alpha_prod = torch.sqrt(self.alphas_cumprod[timesteps])     # √α_bar_t
+        sqrt_alpha_prod = sqrt_alpha_prod.flatten()
+        while len(sqrt_alpha_prod.shape) < len(image.shape): #一定要加，否则会维度不匹配
+            sqrt_alpha_prod = sqrt_alpha_prod.unsqueeze(-1)
+
+        sqrt_one_minus_alpha_prod = torch.sqrt((1 - self.alphas_cumprod[timesteps]))     # √1-α_bar_t
+        sqrt_one_minus_alpha_prod = sqrt_one_minus_alpha_prod.flatten()
+        while len(sqrt_one_minus_alpha_prod.shape) < len(image.shape):
+            sqrt_one_minus_alpha_prod = sqrt_one_minus_alpha_prod.unsqueeze(-1)
+
+        noisy_samples = sqrt_alpha_prod * image + sqrt_one_minus_alpha_prod * noise
+
+        return noisy_samples
     
     def sample_timesteps(self, batch_size: int) -> torch.Tensor:
         return torch.randint(0, self.num_train_timesteps, (batch_size,), device=self.config.device).long() # 生成batch_size个[0, num_train_timesteps)的随机长整型

@@ -3,10 +3,10 @@ name: test
 train:
   steps: 1000
   image_size: 64
-  image_channels: 3
+  image_channels: 1
   lr: 0.0001
   beta: [0.0001, 0.02]    # start, end
-  batch: 1
+  batch: 64
   epochs: 10
   save_period: 5
   sample_period: 1
