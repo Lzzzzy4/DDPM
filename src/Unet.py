@@ -35,11 +35,11 @@ class UNet(Model):
         self.res_atten_M1 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, layers=layers)                                                 # 256 x 4 x 4 -> 256 x 4 x 4
 
         self.res_atten_R1 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers)                           # 256 x 4 x 4 -> [256 x 4 x 4]
-        self.res_atten_R2 = ResAttentionBlock(ch*8, ch*4, ts_proj_dims, attention=False, layers=layers, upsacle=True)    # 512 x 4 x 4 -> 256 x 8 x 8
+        self.res_atten_R2 = ResAttentionBlock(ch*8, ch*4, ts_proj_dims, attention=False, layers=layers, upscale=True)    # 512 x 4 x 4 -> 256 x 8 x 8
         self.res_atten_R3 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers)                            # 256 x 8 x 8 -> 256 x 8 x 8
-        self.res_atten_R4 = ResAttentionBlock(ch*8, ch*2, ts_proj_dims, attention=False, layers=layers, upsacle=True)   # 512 x 8 x 8 -> 128 x 16 x 16
+        self.res_atten_R4 = ResAttentionBlock(ch*8, ch*2, ts_proj_dims, attention=False, layers=layers, upscale=True)   # 512 x 8 x 8 -> 128 x 16 x 16
         self.res_atten_R5 = ResAttentionBlock(ch*2, ch*2, ts_proj_dims, attention=False, layers=layers)                           # 128 x 16 x 16 -> 128 x 16 x 16
-        self.res_atten_R6 = ResAttentionBlock(ch*4, ch, ts_proj_dims, attention=False, layers=layers, upsacle=True)       # 256 x 16 x 16 -> 64 x 32 x 32
+        self.res_atten_R6 = ResAttentionBlock(ch*4, ch, ts_proj_dims, attention=False, layers=layers, upscale=True)       # 256 x 16 x 16 -> 64 x 32 x 32
 
         self.last_conv = Conv3x3(ch, self.ch_input, 1)       # 64 -> 3
 

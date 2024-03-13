@@ -6,14 +6,18 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+from config import Config
 
 path = os.path.dirname(__file__)+"/../data/1.jpg"
-mean = [0.485, 0.456, 0.406]
-std = [0.229, 0.224, 0.225]
+# mean = [0.485, 0.456, 0.406]
+# std = [0.229, 0.224, 0.225]
+mean = [0.5, 0.5, 0.5]
+std = [0.5, 0.5, 0.5]
 
 class ImageDataset(Dataset):
-    def __init__(self, path):
+    def __init__(self, path, config: Config):
         self.path = path
+        self.config = config
         self.transform = transforms.Compose([
             transforms.Resize(64),
             transforms.CenterCrop(64),
@@ -35,6 +39,12 @@ class ImageDataset(Dataset):
         image = image.permute(1,2,0)
         plt.imshow(image)
         plt.show()
+
+    def __len__(self):
+        return 1
+    
+    def __getitem__(self, idx):
+        return self.image.to(self.config.device)
 
 if __name__ == "__main__":
     dataset = ImageDataset(path)

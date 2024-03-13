@@ -17,11 +17,11 @@ class ResAttentionBlock(nn.Module):
             self.at_block = AttentionBlock(out_channels)
         if in_channels != out_channels: # skip conv
             self.conv_skip = Conv1x1(in_channels, out_channels)
-        self.conv1 = Conv3x3(out_channels, out_channels)
+        self.final_conv = Conv3x3(out_channels, out_channels)
         self.silu = nn.SiLU()
 
         if downscale:
-            self.downscale = nn.Conv2d(out_channels, out_channels, 3, 2, 1)
+            self.ds = nn.Conv2d(out_channels, out_channels, 3, 2, 1)
         if upscale:
             self.us = lambda x: nn.functional.interpolate(x, scale_factor=2, mode="nearest") # nearest:最近邻插值 (改变分辨率)
 
@@ -30,14 +30,15 @@ class ResAttentionBlock(nn.Module):
         a = self.ts_block(x, timesteps)
         if self.attention:
             a = self.at_block(a)
+        skip_x = x
         if self.skip:
-            a = self.conv_skip(a)
+            skip_x = self.conv_skip(x)
         
-        final_x = x + a
-        final_x = self.silu(self.conv1(final_x)) #不用finalconv?
+        final_x = a + skip_x
+        final_x = self.silu(self.final_conv(final_x)) #不用finalconv?
 
         if self.downscale:
-            final_x = self.downscale(final_x)
+            final_x = self.ds(final_x)
         if self.upscale:
-            final_x = self.upscale(final_x)
+            final_x = self.us(final_x)
         return final_x

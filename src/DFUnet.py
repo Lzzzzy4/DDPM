@@ -1,8 +1,8 @@
 from diffusers import UNet2DModel
-from models.model import Model
+from model import Model
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from config.config import Config
+    from config import Config
 
 
 class DFUNet(Model):

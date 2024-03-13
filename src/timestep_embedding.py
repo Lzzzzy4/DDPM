@@ -39,11 +39,11 @@ class TimestepBlock(nn.Module):
         x_add = torch.add(x_conv1, t_linear1)
 
         x_bn1 = self.bn1(x_add)
-        x_silu1 = self.relu1(x_bn1)
+        x_silu1 = self.silu1(x_bn1)
 
         x_conv2 = self.conv2(x_silu1)
         x_bn2 = self.bn2(x_conv2)
-        x_silu2 = self.relu2(x_bn2)
+        x_silu2 = self.silu2(x_bn2)
 
         return x_silu2
 

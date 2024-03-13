@@ -28,10 +28,12 @@ class Scheduler:
 
     def add_noise(self, image: torch.Tensor, noise: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
         # x_t = √(α_t)x_0 + √(1-α_t) ε
-        sqrt = torch.sqrt(alpha = self.alphas_cumprod[timesteps]).flatten() # 扁平化
+        sqrt = torch.sqrt(self.alphas_cumprod[timesteps]).flatten() # 扁平化
         # while len(sqrt_alpha_prod.shape) < len(image.shape):
         #     sqrt_alpha_prod = sqrt_alpha_prod.unsqueeze(-1)
         sqrt1 = torch.sqrt(1 - self.alphas_cumprod[timesteps]).flatten()
+        # sqrt.cuda()
+        # sqrt1.cuda()
         return sqrt * image + sqrt1 * noise
     
     def sample_timesteps(self, batch_size: int) -> torch.Tensor:
