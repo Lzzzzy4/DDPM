@@ -22,9 +22,16 @@ class Scheduler:
         self.alphas_cumprod = torch.cumprod(self.alphas, dim=0)     # α_bar
 
     def set_timesteps(self):
-        step = self.num_train_timesteps // self.num_inference_steps
-        timesteps = numpy.arange(self.num_train_timesteps, 0, -step)
+        # step = self.num_train_timesteps // self.num_inference_steps
+        # timesteps = numpy.arange(self.num_train_timesteps, 0, -step)
+        # # print(timesteps)
+        # self.timesteps = torch.from_numpy(timesteps).to(self.config.device)
+
+        step_ratio = self.num_train_timesteps // self.num_inference_steps
+        timesteps = (numpy.arange(0, self.num_inference_steps) * step_ratio).round()[::-1].copy().astype(numpy.int64)
+
         self.timesteps = torch.from_numpy(timesteps).to(self.config.device)
+        # print(self.timesteps)
 
     def add_noise(self, image: torch.Tensor, noise: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
         # x_t = √(α_t)x_0 + √(1-α_t) ε

@@ -66,12 +66,12 @@ if __name__ == "__main__":
             progress_bar.set_postfix(**logs)
 
             # 保存模型
-            if (ep+1) % config.save_period == 0 or (ep+1) == config.epochs:
-                torch.save({
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss,
-                }, savepath + "ep:" + str(ep+1))
+        if (ep+1) % config.save_period == 0 or (ep+1) == config.epochs:
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss,
+            }, f = savepath + "ep" + str(ep+1) + ".pt")
 
             # # 采样一些图片
             # if (ep+1) % config.sample_period == 0:
