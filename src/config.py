@@ -1,4 +1,5 @@
 from yaml import safe_load
+import torch
 
 
 class Config:
@@ -24,6 +25,12 @@ class Config:
         self.num_inference_images: int = self.config["inf"]["num_images"]
 
         self.device: str = self.config["device"]
+        # if not torch.cuda.is_available():
+        #     self.device = "cpu"
+        # elif torch.cuda.device_count() == 1:
+        #     self.device = "cuda:0"
+        # else:
+
 
         self.model_channels: int = int(self.config["model"]["base_channels"])
         self.ts_embed_dims: int = int(self.config["model"]["timestep_embed_dims"])

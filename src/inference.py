@@ -42,7 +42,9 @@ if __name__ == "__main__":
 
     # 读取模型
     checkpoint = torch.load(savepath + "ep10.pt")
-    model.load_state_dict(checkpoint['model_state_dict'], strict=False) # need strict=False
+    save = checkpoint['model_state_dict']
+    print(save[0:5])
+    model.load_state_dict(checkpoint['model_state_dict']) # need strict=False
     image = inference(model, scheduler, config.num_inference_images, config)
     image = (image / 2 + 0.5).clamp(0, 1)
     plot_images(image, save_dir="ans") 

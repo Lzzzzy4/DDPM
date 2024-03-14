@@ -15,7 +15,7 @@ def plot_images(
         cols: int = 4):
 
     _images = images
-    print(_images.shape)
+    # print(_images.shape)
     b, c, h, w = _images.shape
 
     # 当只有一个通道时，将一个通道复制为3个

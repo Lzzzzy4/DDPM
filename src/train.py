@@ -7,10 +7,13 @@ from tqdm import tqdm
 from imageload import ImageDataset
 import os
 from scheduler import Scheduler
+from ddpm_scheduler import DDPMScheduler
 from plot import plot_images
 from torch.utils.data import DataLoader
 from DFUnet import DFUNet
+from hisUnet.unet import UNet as hisUNet
 from mnist_data import MNISTData
+from inference import inference
 
 path = os.path.dirname(__file__)+"/../data/1.jpg"
 configpath = os.path.dirname(__file__)+"/config.yaml"
@@ -22,15 +25,20 @@ if __name__ == "__main__":
     print("device_count",torch.cuda.device_count())
     config = Config(configpath)
     # model = UNet(config).to(config.device)
+    # model = hisUNet(config).to(config.device)
     model = DFUNet(config).to(config.device)
-    scheduler = Scheduler(config)
+
+    # if torch.cuda.device_count() > 1:
+    #     gpus = [7,6,5]
+    #     model = nn.DataParallel(model, device_ids=gpus,output_device=gpus[0])
+    scheduler = DDPMScheduler(config)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
     training_data = MNISTData(config, r"dataset", return_label=True)
     train_dataloader = DataLoader(training_data, batch_size=config.batch, shuffle=True)
     
     # 显示
-    # train_image = ImageDataset(path, config)[0]
+    # train_image = ImageDataset(path, config)[0]4
     # train_image = train_image[None, ...].to(config.device)
     # timesteps = scheduler.sample_timesteps(batch_size=1).to(config.device)
     # noise = torch.randn(train_image.shape).to(config.device)
@@ -73,14 +81,14 @@ if __name__ == "__main__":
                 'loss': loss,
             }, f = savepath + "ep" + str(ep+1) + ".pt")
 
-            # # 采样一些图片
-            # if (ep+1) % config.sample_period == 0:
-            #     model.eval()
-            #     labels = torch.randint(0, 9, (config.num_inference_images, 1)).to(config.device)
-            #     image = inference(model, scheduler, config.num_inference_images, config, label=labels)
-            #     image = (image / 2 + 0.5).clamp(0, 1)
-            #     plot_images(image, save_dir=config.proj_name, titles=labels.detach().tolist())
-            #     model.train()
+        # 采样一些图片
+        if (ep+1) % config.sample_period == 0:
+            model.eval()
+            labels = torch.randint(0, 9, (config.num_inference_images, 1)).to(config.device)
+            image = inference(model, scheduler, config.num_inference_images, config)
+            image = (image / 2 + 0.5).clamp(0, 1)
+            plot_images(image, save_dir=config.proj_name, titles=labels.detach().tolist())
+            model.train()
         
 
 

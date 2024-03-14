@@ -2,3 +2,5 @@ src/test
 src/__pycache__
 src/dataset
 save
+dataset/
+nohup.out

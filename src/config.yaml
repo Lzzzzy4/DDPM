@@ -4,7 +4,7 @@ train:
   steps: 1000
   image_size: 64
   image_channels: 1
-  lr: 0.0001
+  lr: 0.00008
   beta: [0.0001, 0.02]    # start, end
   batch: 64
   epochs: 10
@@ -19,7 +19,7 @@ model:
   base_channels: 64
   timestep_embed_dims: 64
   timestep_proj_dims: 256
-  layers: 1
+  layers: 2
 
-device: "cuda:0"
+device: "cuda:7"
 clip: 1.0

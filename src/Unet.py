@@ -27,8 +27,10 @@ class UNet(Model):
 
         self.res_atten_L1 = ResAttentionBlock(ch, ch, ts_proj_dims, attention=False, layers=layers, downscale=True)      # 64 x 32 x 32 -> 64 x 16 x 16
         self.res_atten_L2 = ResAttentionBlock(ch, ch*2, ts_proj_dims, attention=False, layers=layers)                               # 64 x 16 x 16 -> 128 x 16 x 16
+        self.nb_l1 = nn.BatchNorm2d(ch*2)
         self.res_atten_L3 = ResAttentionBlock(ch*2, ch*2, ts_proj_dims, attention=False, layers=layers, downscale=True)  # 128 x 16 x 16 -> 128 x 8 x 8
         self.res_atten_L4 = ResAttentionBlock(ch*2, ch*4, ts_proj_dims, attention=False, layers=layers)                           # 128 x 8 x 8 -> 256 x 8 x 8
+        self.nb_l2 = nn.BatchNorm2d(ch*4)
         self.res_atten_L5 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers, downscale=True)  # 256 x 8 x 8 -> 256 x 4 x 4
         self.res_atten_L6 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers)                           # 256 x 4 x 4 -> [256 x 4 x 4]
 
@@ -36,8 +38,10 @@ class UNet(Model):
 
         self.res_atten_R1 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers)                           # 256 x 4 x 4 -> [256 x 4 x 4]
         self.res_atten_R2 = ResAttentionBlock(ch*8, ch*4, ts_proj_dims, attention=False, layers=layers, upscale=True)    # 512 x 4 x 4 -> 256 x 8 x 8
+        self.nb_r1 = nn.BatchNorm2d(ch*4)
         self.res_atten_R3 = ResAttentionBlock(ch*4, ch*4, ts_proj_dims, attention=False, layers=layers)                            # 256 x 8 x 8 -> 256 x 8 x 8
         self.res_atten_R4 = ResAttentionBlock(ch*8, ch*2, ts_proj_dims, attention=False, layers=layers, upscale=True)   # 512 x 8 x 8 -> 128 x 16 x 16
+        self.nb_r2 = nn.BatchNorm2d(ch*2)
         self.res_atten_R5 = ResAttentionBlock(ch*2, ch*2, ts_proj_dims, attention=False, layers=layers)                           # 128 x 16 x 16 -> 128 x 16 x 16
         self.res_atten_R6 = ResAttentionBlock(ch*4, ch, ts_proj_dims, attention=False, layers=layers, upscale=True)       # 256 x 16 x 16 -> 64 x 32 x 32
 
@@ -58,9 +62,9 @@ class UNet(Model):
 
         conv_1 = self.first_conv(x)    # 3->64
         res_l1 = self.res_atten_L1(conv_1, ts)
-        res_l2 = self.res_atten_L2(res_l1, ts)
+        res_l2 = self.nb_l1(self.res_atten_L2(res_l1, ts))
         res_l3 = self.res_atten_L3(res_l2, ts)
-        res_l4 = self.res_atten_L4(res_l3, ts)
+        res_l4 = self.nb_l2(self.res_atten_L4(res_l3, ts))
         res_l5 = self.res_atten_L5(res_l4, ts)
         res_l6 = self.res_atten_L6(res_l5, ts)
 
@@ -69,12 +73,12 @@ class UNet(Model):
 
         # concat
         concat_r1_l4 = torch.concat([res_r1, res_l6], dim=1) #合并连接 横向边
-        res_r2 = self.res_atten_R2(concat_r1_l4, ts)
+        res_r2 = self.nb_r1(self.res_atten_R2(concat_r1_l4, ts))
         res_r3 = self.res_atten_R3(res_r2, ts)
 
         # concat
         concat_8_4 = torch.concat([res_r3, res_l4], dim=1)
-        res_r4 = self.res_atten_R4(concat_8_4, ts)
+        res_r4 = self.nb_r2(self.res_atten_R4(concat_8_4, ts))
         res_r5 = self.res_atten_R5(res_r4, ts)
 
         # concat
